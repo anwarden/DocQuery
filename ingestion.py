@@ -11,7 +11,7 @@ def extract_text(pdf_bytes: bytes) -> str:
     Extract raw text from an in-memory PDF
     """
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-    return "\n".join(page.get_text("text") for page in doc)
+    return "\n".join(page.get_text() for page in doc)
 
 
 def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:

@@ -20,7 +20,7 @@ SYSTEM_PROMPT = """You are a helpful study assistant.
 21 Be concise and precise."""
 
 
-def retieve(query: str, index, chunks: list[str], k: int = 3) -> list[str]:
+def retrieve(query: str, index, chunks: list[str], k: int = 3) -> list[str]:
     """
     Enbed query and return k nearest chunks from FAISS index.
     """
@@ -30,14 +30,14 @@ def retieve(query: str, index, chunks: list[str], k: int = 3) -> list[str]:
     return [chunks[i] for i in indices[0] if i < len(chunks)]
 
 
-def generate_answer(query : str, context_chunks:list[str]) -> str:
+def generate_answer(query: str, context_chunks: list[str]) -> str:
     """
     Build prompt with retrieved context and invoke via LangChain
     """
     context = "\n\n---\n\n".join(context_chunks)
     messages = [
-        SystemMessage(content = SYSTEM_PROMPT)
-        HumanMessage(content = f"Context: \n{context}\n\nQuestion: {query}")
+        SystemMessage(content=SYSTEM_PROMPT),
+        HumanMessage(content=f"Context: \n{context}\n\nQuestion: {query}"),
     ]
     response = llm.invoke(messages)
-    return response.context
+    return response.content
