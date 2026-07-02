@@ -4,10 +4,10 @@ from ingestion import build_index, chunk_text, extract_text
 from rag import generate_answer, retrieve
 
 st.set_page_config(page_title="RAG Study assistant", page_icon="book")
-st.title("AI Study Assistant")
+st.title("📑 Talk to your document")
 st.caption("Ask questions about your uploaded PDF document.")
 
-#   Side bar : Upload + Indexing
+#   Sidebar : Upload + Indexing
 with st.sidebar:
     st.header("Upload Document")
     uploaded = st.file_uploader("PDF only (text-based)", type=["pdf"])
@@ -28,15 +28,20 @@ with st.sidebar:
                 chunks = chunk_text(text)
                 index, _ = build_index(chunks)
 
-                # Persist new data in the Stramlit session_state
+                # Persist new data in the Streamlit session_state
                 st.session_state["index"] = index
                 st.session_state["chunks"] = chunks
                 st.session_state["filename"] = uploaded.name
+
+                print(f"[app] indexed '{uploaded.name}' into {len(chunks)} chunks")
 
             st.success(f"Indexed {len(st.session_state['chunks'])} chunks.")
 
     if "index" in st.session_state:
         st.info(f"Active document: {st.session_state['filename']}")
+        st.caption(
+            f"{len(st.session_state['chunks'])} chunks · model: all-MiniLM-L6-v2"
+        )
         if st.button("Clear document"):
             for key in ["index", "chunks", "filename"]:
                 st.session_state.pop(key, None)
@@ -52,7 +57,7 @@ else:
     if query:
         with st.chat_message("user"):
             st.write(query)
-        with st.chat_message("Assistant"):
+        with st.chat_message("assistant"):
             with st.spinner("Reading source document, answering ..."):
                 hits = retrieve(
                     query, st.session_state["index"], st.session_state["chunks"], k=3
@@ -60,7 +65,10 @@ else:
 
                 answer = generate_answer(query, hits)
                 st.write(answer)
+                st.caption(f"Answered using {len(hits)} retrieved chunks")
+
+                print(f"[app] answered query: {query[:60]!r}")
 
                 with st.expander("View retrieved source chunks"):
                     for i, chunk in enumerate(hits, 1):
-                        st.markdown(f"**chunk {i}: {chunk[:300]}...")
+                        st.markdown(f"**Chunk {i}:** {chunk[:300]}...")

@@ -1,6 +1,7 @@
 from ingestion import build_index, chunk_text, extract_text
 from rag import generate_answer, retrieve
 
+print("=== Ingestion ===")
 pdf_path = "example.pdf"
 
 with open(pdf_path, "rb") as f:
@@ -12,10 +13,9 @@ index, _ = build_index(chunks)
 
 print("[OK] ingestor is working...")
 
-query = """What is the main topic of this document ?
-Give me the three most important informations I must know about it.
-Use the Pareto 20/80 method."""
+query = """What is the main topic of this document ?"""
 
+print("\n=== Query ===")
 hits = retrieve(
     query,
     index,
@@ -24,10 +24,11 @@ hits = retrieve(
 
 answer = generate_answer(query, hits)
 
-print(f"\nQ: {query}")
+print("\n=== Result ===")
+print(f"Q: {query}")
 print(f"A: {answer}")
 
-print("Most relevant chunks:")
+print("\nMost relevant chunks:")
 
 for hit in hits:
     print(f" -> {hit[:300]}")
